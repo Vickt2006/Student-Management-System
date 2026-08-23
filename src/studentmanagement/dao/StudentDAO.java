@@ -9,12 +9,12 @@ import studentmanagement.util.DBConnection;
 
 public class StudentDAO {
 
-    // ==========================================
-    // 1. ADD STUDENT
-    // ==========================================
+    // ================= ADD STUDENT =================
+
     public void addStudent(Student student) {
 
-        String sql = "INSERT INTO students (name, age, course, email, phone) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO students (name, age, course, email, phone) "
+                   + "VALUES (?, ?, ?, ?, ?)";
 
         try {
 
@@ -38,13 +38,12 @@ public class StudentDAO {
         } catch (Exception e) {
 
             e.printStackTrace();
-
         }
     }
 
-    // ==========================================
-    // 2. VIEW ALL STUDENTS
-    // ==========================================
+
+    // ================= VIEW ALL STUDENTS =================
+
     public void getAllStudents() {
 
         String sql = "SELECT * FROM students";
@@ -57,9 +56,14 @@ public class StudentDAO {
 
             ResultSet rs = ps.executeQuery();
 
+            System.out.println();
+            System.out.println("========== ALL STUDENTS ==========");
+
+            boolean found = false;
+
             while (rs.next()) {
 
-                System.out.println("-------------------------");
+                found = true;
 
                 System.out.println("ID: " + rs.getInt("id"));
                 System.out.println("Name: " + rs.getString("name"));
@@ -67,9 +71,12 @@ public class StudentDAO {
                 System.out.println("Course: " + rs.getString("course"));
                 System.out.println("Email: " + rs.getString("email"));
                 System.out.println("Phone: " + rs.getString("phone"));
+                System.out.println("----------------------------------");
             }
 
-            System.out.println("-------------------------");
+            if (!found) {
+                System.out.println("No students found.");
+            }
 
             rs.close();
             ps.close();
@@ -78,14 +85,13 @@ public class StudentDAO {
         } catch (Exception e) {
 
             e.printStackTrace();
-
         }
     }
 
-    // ==========================================
-    // 3. SEARCH STUDENT BY ID
-    // ==========================================
-    public void getStudentById(int id) {
+
+    // ================= SEARCH STUDENT =================
+
+    public void searchStudent(int id) {
 
         String sql = "SELECT * FROM students WHERE id = ?";
 
@@ -101,8 +107,8 @@ public class StudentDAO {
 
             if (rs.next()) {
 
-                System.out.println("Student Found!");
-                System.out.println("-------------------------");
+                System.out.println();
+                System.out.println("========== STUDENT FOUND ==========");
 
                 System.out.println("ID: " + rs.getInt("id"));
                 System.out.println("Name: " + rs.getString("name"));
@@ -111,12 +117,11 @@ public class StudentDAO {
                 System.out.println("Email: " + rs.getString("email"));
                 System.out.println("Phone: " + rs.getString("phone"));
 
-                System.out.println("-------------------------");
+                System.out.println("===================================");
 
             } else {
 
                 System.out.println("Student not found!");
-
             }
 
             rs.close();
@@ -126,16 +131,16 @@ public class StudentDAO {
         } catch (Exception e) {
 
             e.printStackTrace();
-
         }
     }
 
-    // ==========================================
-    // 4. UPDATE STUDENT
-    // ==========================================
+
+    // ================= UPDATE STUDENT =================
+
     public void updateStudent(Student student) {
 
-        String sql = "UPDATE students SET name = ?, age = ?, course = ?, email = ?, phone = ? WHERE id = ?";
+        String sql = "UPDATE students SET name = ?, age = ?, course = ?, "
+                   + "email = ?, phone = ? WHERE id = ?";
 
         try {
 
@@ -159,7 +164,6 @@ public class StudentDAO {
             } else {
 
                 System.out.println("Student not found!");
-
             }
 
             ps.close();
@@ -168,13 +172,12 @@ public class StudentDAO {
         } catch (Exception e) {
 
             e.printStackTrace();
-
         }
     }
 
-    // ==========================================
-    // 5. DELETE STUDENT
-    // ==========================================
+
+    // ================= DELETE STUDENT =================
+
     public void deleteStudent(int id) {
 
         String sql = "DELETE FROM students WHERE id = ?";
@@ -196,7 +199,6 @@ public class StudentDAO {
             } else {
 
                 System.out.println("Student not found!");
-
             }
 
             ps.close();
@@ -205,7 +207,6 @@ public class StudentDAO {
         } catch (Exception e) {
 
             e.printStackTrace();
-
         }
     }
 }

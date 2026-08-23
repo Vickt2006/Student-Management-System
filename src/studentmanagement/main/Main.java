@@ -2,8 +2,17 @@ package studentmanagement.main;
 
 import java.util.Scanner;
 
+import studentmanagement.dao.AttendanceDAO;
+import studentmanagement.dao.FeesDAO;
+import studentmanagement.dao.MarksDAO;
 import studentmanagement.dao.StudentDAO;
+import studentmanagement.dao.UserDAO;
+
+import studentmanagement.model.Attendance;
+import studentmanagement.model.Fees;
+import studentmanagement.model.Marks;
 import studentmanagement.model.Student;
+import studentmanagement.model.User;
 
 public class Main {
 
@@ -11,14 +20,118 @@ public class Main {
 
         Scanner sc = new Scanner(System.in);
 
-        StudentDAO dao = new StudentDAO();
+        System.out.println("========================================");
+        System.out.println("       STUDENT MANAGEMENT SYSTEM");
+        System.out.println("========================================");
+
+        System.out.println();
+        System.out.println("             LOGIN");
+        System.out.println("========================================");
+
+        System.out.print("Username: ");
+        String username = sc.nextLine();
+
+        System.out.print("Password: ");
+        String password = sc.nextLine();
+
+        UserDAO userDAO = new UserDAO();
+
+        User user = userDAO.login(username, password);
+
+        if (user != null) {
+
+            System.out.println();
+            System.out.println("Login Successful!");
+            System.out.println("Welcome, " + user.getUsername());
+            System.out.println("Role: " + user.getRole());
+
+            showDashboard(sc);
+
+        } else {
+
+            System.out.println();
+            System.out.println("Invalid username or password!");
+        }
+
+        sc.close();
+    }
+
+
+    // =====================================================
+    // ADMIN DASHBOARD
+    // =====================================================
+
+    public static void showDashboard(Scanner sc) {
 
         int choice;
 
         do {
 
-            System.out.println("\n========================================");
-            System.out.println("       STUDENT MANAGEMENT SYSTEM");
+            System.out.println();
+            System.out.println("========================================");
+            System.out.println("             ADMIN DASHBOARD");
+            System.out.println("========================================");
+
+            System.out.println("1. Student Management");
+            System.out.println("2. Attendance Management");
+            System.out.println("3. Marks Management");
+            System.out.println("4. Fees Management");
+            System.out.println("5. Reports");
+            System.out.println("6. Logout");
+
+            System.out.print("Enter your choice: ");
+
+            choice = sc.nextInt();
+
+            switch (choice) {
+
+                case 1:
+                    studentManagement(sc);
+                    break;
+
+                case 2:
+                    attendanceManagement(sc);
+                    break;
+
+                case 3:
+                    marksManagement(sc);
+                    break;
+
+                case 4:
+                    feesManagement(sc);
+                    break;
+
+                case 5:
+                    System.out.println("Reports coming soon...");
+                    break;
+
+                case 6:
+                    System.out.println("Logged out successfully.");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice!");
+            }
+
+        } while (choice != 6);
+    }
+
+
+    // =====================================================
+    // STUDENT MANAGEMENT
+    // =====================================================
+
+    public static void studentManagement(Scanner sc) {
+
+        StudentDAO studentDAO = new StudentDAO();
+
+        int choice;
+
+        do {
+
+            System.out.println();
+            System.out.println("========================================");
+            System.out.println("        STUDENT MANAGEMENT");
             System.out.println("========================================");
 
             System.out.println("1. Add Student");
@@ -26,283 +139,468 @@ public class Main {
             System.out.println("3. Search Student");
             System.out.println("4. Update Student");
             System.out.println("5. Delete Student");
-            System.out.println("6. Exit");
+            System.out.println("6. Back to Dashboard");
 
             System.out.print("Enter your choice: ");
+
             choice = sc.nextInt();
+            sc.nextLine();
 
             switch (choice) {
 
-            // =====================================
-            // 1. ADD STUDENT
-            // =====================================
-            case 1:
+                case 1:
+                    addStudent(sc, studentDAO);
+                    break;
 
-                sc.nextLine();
+                case 2:
+                    studentDAO.getAllStudents();
+                    break;
 
-                // NAME VALIDATION
-                String name;
+                case 3:
 
-                while (true) {
+                    System.out.print("Enter Student ID to search: ");
 
-                    System.out.print("Enter Name: ");
-                    name = sc.nextLine();
+                    int searchId = sc.nextInt();
 
-                    if (!name.trim().isEmpty()) {
-                        break;
-                    }
+                    studentDAO.searchStudent(searchId);
 
-                    System.out.println("Name cannot be empty!");
-                }
+                    break;
 
-                // AGE VALIDATION
-                int age;
+                case 4:
+                    updateStudent(sc, studentDAO);
+                    break;
 
-                while (true) {
+                case 5:
 
-                    System.out.print("Enter Age: ");
-                    age = sc.nextInt();
+                    System.out.print("Enter Student ID to delete: ");
 
-                    if (age >= 1 && age <= 100) {
-                        break;
-                    }
+                    int deleteId = sc.nextInt();
 
-                    System.out.println("Invalid age! Enter age between 1 and 100.");
-                }
+                    studentDAO.deleteStudent(deleteId);
 
-                sc.nextLine();
+                    break;
 
-                // COURSE VALIDATION
-                String course;
+                case 6:
+                    System.out.println("Returning to Dashboard...");
+                    break;
 
-                while (true) {
-
-                    System.out.print("Enter Course: ");
-                    course = sc.nextLine();
-
-                    if (!course.trim().isEmpty()) {
-                        break;
-                    }
-
-                    System.out.println("Course cannot be empty!");
-                }
-
-                // EMAIL VALIDATION
-                String email;
-
-                while (true) {
-
-                    System.out.print("Enter Email: ");
-                    email = sc.nextLine();
-
-                    if (email.contains("@") && email.contains(".")) {
-                        break;
-                    }
-
-                    System.out.println("Invalid email! Please enter a valid email.");
-                }
-
-                // PHONE VALIDATION
-                String phone;
-
-                while (true) {
-
-                    System.out.print("Enter Phone (10 digits): ");
-                    phone = sc.nextLine();
-
-                    if (phone.matches("\\d{10}")) {
-                        break;
-                    }
-
-                    System.out.println("Invalid phone number! Enter exactly 10 digits.");
-                }
-
-                Student student = new Student(
-                        0,
-                        name,
-                        age,
-                        course,
-                        email,
-                        phone
-                );
-
-                dao.addStudent(student);
-
-                break;
-
-
-            // =====================================
-            // 2. VIEW ALL STUDENTS
-            // =====================================
-            case 2:
-
-                dao.getAllStudents();
-
-                break;
-
-
-            // =====================================
-            // 3. SEARCH STUDENT
-            // =====================================
-            case 3:
-
-                System.out.print("Enter Student ID: ");
-                int searchId = sc.nextInt();
-
-                dao.getStudentById(searchId);
-
-                break;
-
-
-            // =====================================
-            // 4. UPDATE STUDENT
-            // =====================================
-            case 4:
-
-                System.out.print("Enter Student ID to update: ");
-                int updateId = sc.nextInt();
-
-                sc.nextLine();
-
-                // NEW NAME
-                String newName;
-
-                while (true) {
-
-                    System.out.print("Enter New Name: ");
-                    newName = sc.nextLine();
-
-                    if (!newName.trim().isEmpty()) {
-                        break;
-                    }
-
-                    System.out.println("Name cannot be empty!");
-                }
-
-                // NEW AGE
-                int newAge;
-
-                while (true) {
-
-                    System.out.print("Enter New Age: ");
-                    newAge = sc.nextInt();
-
-                    if (newAge >= 1 && newAge <= 100) {
-                        break;
-                    }
-
-                    System.out.println("Invalid age! Enter age between 1 and 100.");
-                }
-
-                sc.nextLine();
-
-                // NEW COURSE
-                String newCourse;
-
-                while (true) {
-
-                    System.out.print("Enter New Course: ");
-                    newCourse = sc.nextLine();
-
-                    if (!newCourse.trim().isEmpty()) {
-                        break;
-                    }
-
-                    System.out.println("Course cannot be empty!");
-                }
-
-                // NEW EMAIL
-                String newEmail;
-
-                while (true) {
-
-                    System.out.print("Enter New Email: ");
-                    newEmail = sc.nextLine();
-
-                    if (newEmail.contains("@") && newEmail.contains(".")) {
-                        break;
-                    }
-
-                    System.out.println("Invalid email!");
-                }
-
-                // NEW PHONE
-                String newPhone;
-
-                while (true) {
-
-                    System.out.print("Enter New Phone (10 digits): ");
-                    newPhone = sc.nextLine();
-
-                    if (newPhone.matches("\\d{10}")) {
-                        break;
-                    }
-
-                    System.out.println("Invalid phone number! Enter exactly 10 digits.");
-                }
-
-                Student updatedStudent = new Student(
-                        updateId,
-                        newName,
-                        newAge,
-                        newCourse,
-                        newEmail,
-                        newPhone
-                );
-
-                dao.updateStudent(updatedStudent);
-
-                break;
-
-
-            // =====================================
-            // 5. DELETE STUDENT
-            // =====================================
-            case 5:
-
-                System.out.print("Enter Student ID to delete: ");
-                int deleteId = sc.nextInt();
-
-                sc.nextLine();
-
-                System.out.print("Are you sure you want to delete this student? (Y/N): ");
-                String confirm = sc.nextLine();
-
-                if (confirm.equalsIgnoreCase("Y")) {
-
-                    dao.deleteStudent(deleteId);
-
-                } else {
-
-                    System.out.println("Delete operation cancelled.");
-
-                }
-
-                break;
-
-
-            // =====================================
-            // 6. EXIT
-            // =====================================
-            case 6:
-
-                System.out.println("\nThank you for using Student Management System!");
-                System.out.println("Goodbye!");
-
-                break;
-
-
-            // =====================================
-            // INVALID CHOICE
-            // =====================================
-            default:
-
-                System.out.println("Invalid choice! Please select 1 to 6.");
-
+                default:
+                    System.out.println("Invalid choice!");
             }
 
         } while (choice != 6);
-
-        sc.close();
     }
-} 
+
+
+    // =====================================================
+    // ADD STUDENT
+    // =====================================================
+
+    public static void addStudent(Scanner sc, StudentDAO studentDAO) {
+
+        System.out.println();
+        System.out.println("========== ADD STUDENT ==========");
+
+        System.out.print("Enter Name: ");
+        String name = sc.nextLine();
+
+        System.out.print("Enter Age: ");
+        int age = sc.nextInt();
+
+        sc.nextLine();
+
+        System.out.print("Enter Course: ");
+        String course = sc.nextLine();
+
+        System.out.print("Enter Email: ");
+        String email = sc.nextLine();
+
+        System.out.print("Enter Phone: ");
+        String phone = sc.nextLine();
+
+        Student student = new Student();
+
+        student.setName(name);
+        student.setAge(age);
+        student.setCourse(course);
+        student.setEmail(email);
+        student.setPhone(phone);
+
+        studentDAO.addStudent(student);
+    }
+
+
+    // =====================================================
+    // UPDATE STUDENT
+    // =====================================================
+
+    public static void updateStudent(Scanner sc, StudentDAO studentDAO) {
+
+        System.out.println();
+        System.out.println("========== UPDATE STUDENT ==========");
+
+        System.out.print("Enter Student ID: ");
+
+        int id = sc.nextInt();
+
+        sc.nextLine();
+
+        System.out.print("Enter New Name: ");
+        String name = sc.nextLine();
+
+        System.out.print("Enter New Age: ");
+        int age = sc.nextInt();
+
+        sc.nextLine();
+
+        System.out.print("Enter New Course: ");
+        String course = sc.nextLine();
+
+        System.out.print("Enter New Email: ");
+        String email = sc.nextLine();
+
+        System.out.print("Enter New Phone: ");
+        String phone = sc.nextLine();
+
+        Student student = new Student();
+
+        student.setId(id);
+        student.setName(name);
+        student.setAge(age);
+        student.setCourse(course);
+        student.setEmail(email);
+        student.setPhone(phone);
+
+        studentDAO.updateStudent(student);
+    }
+
+
+    // =====================================================
+    // ATTENDANCE MANAGEMENT
+    // =====================================================
+
+    public static void attendanceManagement(Scanner sc) {
+
+        AttendanceDAO attendanceDAO = new AttendanceDAO();
+
+        int choice;
+
+        do {
+
+            System.out.println();
+            System.out.println("========================================");
+            System.out.println("       ATTENDANCE MANAGEMENT");
+            System.out.println("========================================");
+
+            System.out.println("1. Mark Attendance");
+            System.out.println("2. View All Attendance");
+            System.out.println("3. View Student Attendance");
+            System.out.println("4. Back to Dashboard");
+
+            System.out.print("Enter your choice: ");
+
+            choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+
+                case 1:
+                    markAttendance(sc, attendanceDAO);
+                    break;
+
+                case 2:
+                    attendanceDAO.viewAllAttendance();
+                    break;
+
+                case 3:
+
+                    System.out.print("Enter Student ID: ");
+
+                    int studentId = sc.nextInt();
+
+                    attendanceDAO.viewStudentAttendance(studentId);
+
+                    break;
+
+                case 4:
+                    System.out.println("Returning to Dashboard...");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice!");
+            }
+
+        } while (choice != 4);
+    }
+
+
+    // =====================================================
+    // MARK ATTENDANCE
+    // =====================================================
+
+    public static void markAttendance(
+            Scanner sc,
+            AttendanceDAO attendanceDAO) {
+
+        System.out.println();
+        System.out.println("========== MARK ATTENDANCE ==========");
+
+        System.out.print("Enter Student ID: ");
+
+        int studentId = sc.nextInt();
+
+        sc.nextLine();
+
+        System.out.print("Enter Date (YYYY-MM-DD): ");
+
+        String date = sc.nextLine();
+
+        System.out.print("Enter Status (Present/Absent): ");
+
+        String status = sc.nextLine();
+
+        Attendance attendance = new Attendance();
+
+        attendance.setStudentId(studentId);
+        attendance.setAttendanceDate(date);
+        attendance.setStatus(status);
+
+        attendanceDAO.markAttendance(attendance);
+    }
+
+
+    // =====================================================
+    // MARKS MANAGEMENT
+    // =====================================================
+
+    public static void marksManagement(Scanner sc) {
+
+        MarksDAO marksDAO = new MarksDAO();
+
+        int choice;
+
+        do {
+
+            System.out.println();
+            System.out.println("========================================");
+            System.out.println("          MARKS MANAGEMENT");
+            System.out.println("========================================");
+
+            System.out.println("1. Add Marks");
+            System.out.println("2. View All Marks");
+            System.out.println("3. View Student Marks");
+            System.out.println("4. Back to Dashboard");
+
+            System.out.print("Enter your choice: ");
+
+            choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+
+                case 1:
+                    addMarks(sc, marksDAO);
+                    break;
+
+                case 2:
+                    marksDAO.viewAllMarks();
+                    break;
+
+                case 3:
+
+                    System.out.print("Enter Student ID: ");
+
+                    int studentId = sc.nextInt();
+
+                    marksDAO.viewStudentMarks(studentId);
+
+                    break;
+
+                case 4:
+                    System.out.println("Returning to Dashboard...");
+                    break;
+
+                default:
+                    System.out.println("Invalid choice!");
+            }
+
+        } while (choice != 4);
+    }
+
+
+    // =====================================================
+    // ADD MARKS
+    // =====================================================
+
+    public static void addMarks(Scanner sc, MarksDAO marksDAO) {
+
+        System.out.println();
+        System.out.println("========== ADD MARKS ==========");
+
+        System.out.print("Enter Student ID: ");
+
+        int studentId = sc.nextInt();
+
+        sc.nextLine();
+
+        System.out.print("Enter Subject: ");
+
+        String subject = sc.nextLine();
+
+        System.out.print("Enter Marks: ");
+
+        int marks = sc.nextInt();
+
+        System.out.print("Enter Total Marks: ");
+
+        int totalMarks = sc.nextInt();
+
+        Marks mark = new Marks();
+
+        mark.setStudentId(studentId);
+        mark.setSubject(subject);
+        mark.setMarks(marks);
+        mark.setTotalMarks(totalMarks);
+
+        marksDAO.addMarks(mark);
+    }
+
+
+    // =====================================================
+    // FEES MANAGEMENT
+    // =====================================================
+
+    public static void feesManagement(Scanner sc) {
+
+        FeesDAO feesDAO = new FeesDAO();
+
+        int choice;
+
+        do {
+
+            System.out.println();
+            System.out.println("========================================");
+            System.out.println("           FEES MANAGEMENT");
+            System.out.println("========================================");
+
+            System.out.println("1. Add Fee");
+            System.out.println("2. View All Fees");
+            System.out.println("3. View Student Fees");
+            System.out.println("4. Update Fee Status");
+            System.out.println("5. Back to Dashboard");
+
+            System.out.print("Enter your choice: ");
+
+            choice = sc.nextInt();
+            sc.nextLine();
+
+            switch (choice) {
+
+                case 1:
+                    addFee(sc, feesDAO);
+                    break;
+
+                case 2:
+                    feesDAO.viewAllFees();
+                    break;
+
+                case 3:
+
+                    System.out.print("Enter Student ID: ");
+
+                    int studentId = sc.nextInt();
+
+                    feesDAO.viewStudentFees(studentId);
+
+                    break;
+
+                case 4:
+
+                    updateFeeStatus(sc, feesDAO);
+
+                    break;
+
+                case 5:
+
+                    System.out.println("Returning to Dashboard...");
+
+                    break;
+
+                default:
+
+                    System.out.println("Invalid choice!");
+            }
+
+        } while (choice != 5);
+    }
+
+
+    // =====================================================
+    // ADD FEE
+    // =====================================================
+
+    public static void addFee(Scanner sc, FeesDAO feesDAO) {
+
+        System.out.println();
+        System.out.println("========== ADD FEE ==========");
+
+        System.out.print("Enter Student ID: ");
+
+        int studentId = sc.nextInt();
+
+        sc.nextLine();
+
+        System.out.print("Enter Amount: ");
+
+        double amount = sc.nextDouble();
+
+        sc.nextLine();
+
+        System.out.print("Enter Payment Date (YYYY-MM-DD): ");
+
+        String paymentDate = sc.nextLine();
+
+        System.out.print("Enter Payment Status (Paid/Pending): ");
+
+        String paymentStatus = sc.nextLine();
+
+        System.out.print("Enter Payment Method (Cash/UPI/Card): ");
+
+        String paymentMethod = sc.nextLine();
+
+        Fees fee = new Fees();
+
+        fee.setStudentId(studentId);
+        fee.setAmount(amount);
+        fee.setPaymentDate(paymentDate);
+        fee.setPaymentStatus(paymentStatus);
+        fee.setPaymentMethod(paymentMethod);
+
+        feesDAO.addFee(fee);
+    }
+
+
+    // =====================================================
+    // UPDATE FEE STATUS
+    // =====================================================
+
+    public static void updateFeeStatus(
+            Scanner sc,
+            FeesDAO feesDAO) {
+
+        System.out.println();
+        System.out.println("========== UPDATE FEE STATUS ==========");
+
+        System.out.print("Enter Fee ID: ");
+
+        int feeId = sc.nextInt();
+
+        sc.nextLine();
+
+        System.out.print("Enter New Status (Paid/Pending): ");
+
+        String status = sc.nextLine();
+
+        feesDAO.updateFeeStatus(feeId, status);
+    }
+}
