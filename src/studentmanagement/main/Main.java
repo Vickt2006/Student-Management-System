@@ -5,6 +5,7 @@ import java.util.Scanner;
 import studentmanagement.dao.AttendanceDAO;
 import studentmanagement.dao.FeesDAO;
 import studentmanagement.dao.MarksDAO;
+import studentmanagement.dao.ReportDAO;
 import studentmanagement.dao.StudentDAO;
 import studentmanagement.dao.UserDAO;
 
@@ -102,7 +103,7 @@ public class Main {
                     break;
 
                 case 5:
-                    System.out.println("Reports coming soon...");
+                    reportsManagement(sc);
                     break;
 
                 case 6:
@@ -515,19 +516,14 @@ public class Main {
                     break;
 
                 case 4:
-
                     updateFeeStatus(sc, feesDAO);
-
                     break;
 
                 case 5:
-
                     System.out.println("Returning to Dashboard...");
-
                     break;
 
                 default:
-
                     System.out.println("Invalid choice!");
             }
 
@@ -602,5 +598,56 @@ public class Main {
         String status = sc.nextLine();
 
         feesDAO.updateFeeStatus(feeId, status);
+    }
+
+
+    // =====================================================
+    // REPORTS MANAGEMENT
+    // =====================================================
+
+    public static void reportsManagement(Scanner sc) {
+
+        ReportDAO reportDAO = new ReportDAO();
+
+        int choice;
+
+        do {
+
+            System.out.println();
+            System.out.println("========================================");
+            System.out.println("              REPORTS");
+            System.out.println("========================================");
+
+            System.out.println("1. Student Full Report");
+            System.out.println("2. Back to Dashboard");
+
+            System.out.print("Enter your choice: ");
+
+            choice = sc.nextInt();
+
+            switch (choice) {
+
+                case 1:
+
+                    System.out.print("Enter Student ID: ");
+
+                    int studentId = sc.nextInt();
+
+                    reportDAO.studentFullReport(studentId);
+
+                    break;
+
+                case 2:
+
+                    System.out.println("Returning to Dashboard...");
+
+                    break;
+
+                default:
+
+                    System.out.println("Invalid choice!");
+            }
+
+        } while (choice != 2);
     }
 }
