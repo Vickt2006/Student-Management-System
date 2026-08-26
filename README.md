@@ -219,6 +219,22 @@ DBConnection.java handles the MySQL database connection.
 
 ---
 
+## 📸 Screenshots
+
+### Admin Dashboard
+
+![Admin Dashboard](screenshots/admin-dashboard.png)
+
+### Student Dashboard
+
+![Student Dashboard](screenshots/student-dashboard.png)
+
+### Student Report
+
+![Student Report](screenshots/student-report.png)
+
+---
+
 ## 📂 Project Structure
 
 ```text
@@ -249,6 +265,12 @@ StudentManagementSystem
 |       +-- util
 |           +-- DBConnection.java
 |
++-- screenshots
+|   +-- admin-dashboard.png
+|   +-- student-dashboard.png
+|   +-- student-report.png
+|
++-- database.sql
 +-- README.md
 ```
 
@@ -343,15 +365,19 @@ USE student_db;
 
 ### 5. Create Required Tables
 
-Create the following tables:
+The complete database setup is available in:
 
 ```text
-users
-students
-attendance
-marks
-fees
+database.sql
 ```
+
+The SQL file contains the required tables:
+
+- users
+- students
+- attendance
+- marks
+- fees
 
 ### 6. Configure Database Connection
 
