@@ -31,9 +31,24 @@ public class UserDAO {
                 user = new User();
 
                 user.setId(rs.getInt("id"));
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
-                user.setRole(rs.getString("role"));
+
+                user.setUsername(
+                        rs.getString("username")
+                );
+
+                user.setPassword(
+                        rs.getString("password")
+                );
+
+                user.setRole(
+                        rs.getString("role")
+                );
+
+                // ================= STUDENT ID =================
+
+                user.setStudentId(
+                        rs.getInt("student_id")
+                );
             }
 
             rs.close();
@@ -41,6 +56,10 @@ public class UserDAO {
             con.close();
 
         } catch (Exception e) {
+
+            System.out.println(
+                    "Error while login."
+            );
 
             e.printStackTrace();
         }

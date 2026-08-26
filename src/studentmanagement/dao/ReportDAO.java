@@ -12,6 +12,11 @@ public class ReportDAO {
 
     public void studentFullReport(int studentId) {
 
+        if (studentId <= 0) {
+            System.out.println("Please enter a valid Student ID!");
+            return;
+        }
+
         String studentSql =
                 "SELECT * FROM students WHERE id = ?";
 
@@ -38,6 +43,10 @@ public class ReportDAO {
                 return;
             }
 
+            // =================================================
+            // STUDENT INFORMATION
+            // =================================================
+
             System.out.println();
             System.out.println("========================================");
             System.out.println("          STUDENT FULL REPORT");
@@ -62,7 +71,9 @@ public class ReportDAO {
                     + studentRs.getString("phone"));
 
 
-            // ================= MARKS =================
+            // =================================================
+            // MARKS
+            // =================================================
 
             System.out.println();
             System.out.println("------------- MARKS ----------------");
@@ -81,9 +92,15 @@ public class ReportDAO {
 
             boolean marksFound = false;
 
+            int totalObtained = 0;
+            int totalPossible = 0;
+
             while (marksRs.next()) {
 
                 marksFound = true;
+
+                String subject =
+                        marksRs.getString("subject");
 
                 int marks =
                         marksRs.getInt("marks");
@@ -94,31 +111,61 @@ public class ReportDAO {
                 double percentage =
                         ((double) marks / total) * 100;
 
-                System.out.println(
-                        marksRs.getString("subject")
-                        + " : "
-                        + marks
-                        + " / "
-                        + total
-                        + " | "
-                        + percentage
-                        + "%"
+                System.out.printf(
+                        "%-15s : %d / %d | %.2f%% | Grade: %s%n",
+                        subject,
+                        marks,
+                        total,
+                        percentage,
+                        calculateGrade(percentage)
                 );
+
+                totalObtained += marks;
+                totalPossible += total;
             }
 
             if (!marksFound) {
+
                 System.out.println("No marks records found.");
+
+            } else {
+
+                double overallPercentage =
+                        ((double) totalObtained
+                        / totalPossible) * 100;
+
+                System.out.println("----------------------------------------");
+
+                System.out.println("Total Obtained: "
+                        + totalObtained);
+
+                System.out.println("Total Possible: "
+                        + totalPossible);
+
+                System.out.printf(
+                        "Overall Percentage: %.2f%%%n",
+                        overallPercentage
+                );
+
+                System.out.println(
+                        "Overall Grade: "
+                        + calculateGrade(overallPercentage)
+                );
             }
 
 
-            // ================= ATTENDANCE =================
+            // =================================================
+            // ATTENDANCE
+            // =================================================
 
             System.out.println();
             System.out.println("---------- ATTENDANCE ---------------");
 
             String attendanceSql =
                     "SELECT attendance_date, status "
-                    + "FROM attendance WHERE student_id = ?";
+                    + "FROM attendance "
+                    + "WHERE student_id = ? "
+                    + "ORDER BY attendance_date";
 
             PreparedStatement attendancePs =
                     con.prepareStatement(attendanceSql);
@@ -130,23 +177,66 @@ public class ReportDAO {
 
             boolean attendanceFound = false;
 
+            int totalDays = 0;
+            int presentDays = 0;
+            int absentDays = 0;
+
             while (attendanceRs.next()) {
 
                 attendanceFound = true;
 
+                String date =
+                        attendanceRs.getString("attendance_date");
+
+                String status =
+                        attendanceRs.getString("status");
+
                 System.out.println(
-                        attendanceRs.getString("attendance_date")
-                        + " : "
-                        + attendanceRs.getString("status")
+                        date + " : " + status
                 );
+
+                totalDays++;
+
+                if (status.equalsIgnoreCase("Present")) {
+
+                    presentDays++;
+
+                } else if (status.equalsIgnoreCase("Absent")) {
+
+                    absentDays++;
+                }
             }
 
             if (!attendanceFound) {
+
                 System.out.println("No attendance records found.");
+
+            } else {
+
+                double attendancePercentage =
+                        ((double) presentDays / totalDays) * 100;
+
+                System.out.println("----------------------------------------");
+
+                System.out.println("Total Days: "
+                        + totalDays);
+
+                System.out.println("Present: "
+                        + presentDays);
+
+                System.out.println("Absent: "
+                        + absentDays);
+
+                System.out.printf(
+                        "Attendance Percentage: %.2f%%%n",
+                        attendancePercentage
+                );
             }
 
 
-            // ================= FEES =================
+            // =================================================
+            // FEES
+            // =================================================
 
             System.out.println();
             System.out.println("-------------- FEES -----------------");
@@ -166,13 +256,22 @@ public class ReportDAO {
 
             boolean feesFound = false;
 
+            double totalFee = 0;
+            double paidFee = 0;
+            double pendingFee = 0;
+
             while (feesRs.next()) {
 
                 feesFound = true;
 
+                double amount =
+                        feesRs.getDouble("amount");
+
+                String status =
+                        feesRs.getString("payment_status");
+
                 System.out.println(
-                        "Amount: ₹"
-                        + feesRs.getDouble("amount")
+                        "Amount: ₹" + amount
                 );
 
                 System.out.println(
@@ -181,8 +280,7 @@ public class ReportDAO {
                 );
 
                 System.out.println(
-                        "Status: "
-                        + feesRs.getString("payment_status")
+                        "Status: " + status
                 );
 
                 System.out.println(
@@ -191,12 +289,47 @@ public class ReportDAO {
                 );
 
                 System.out.println("--------------------------------------");
+
+                totalFee += amount;
+
+                if (status.equalsIgnoreCase("Paid")) {
+
+                    paidFee += amount;
+
+                } else if (status.equalsIgnoreCase("Pending")) {
+
+                    pendingFee += amount;
+                }
             }
 
             if (!feesFound) {
+
                 System.out.println("No fee records found.");
+
+            } else {
+
+                System.out.println();
+                System.out.println("========== FEE SUMMARY ==========");
+
+                System.out.println(
+                        "Total Fee: ₹" + totalFee
+                );
+
+                System.out.println(
+                        "Paid Amount: ₹" + paidFee
+                );
+
+                System.out.println(
+                        "Pending Amount: ₹" + pendingFee
+                );
+
+                System.out.println("=================================");
             }
 
+
+            // =================================================
+            // END REPORT
+            // =================================================
 
             System.out.println();
             System.out.println("========================================");
@@ -204,7 +337,9 @@ public class ReportDAO {
             System.out.println("========================================");
 
 
-            // Close resources
+            // =================================================
+            // CLOSE RESOURCES
+            // =================================================
 
             studentRs.close();
             studentPs.close();
@@ -222,7 +357,41 @@ public class ReportDAO {
 
         } catch (Exception e) {
 
+            System.out.println("Error while generating report.");
             e.printStackTrace();
+        }
+    }
+
+
+    // =====================================================
+    // CALCULATE GRADE
+    // =====================================================
+
+    public String calculateGrade(double percentage) {
+
+        if (percentage >= 90) {
+
+            return "A+";
+
+        } else if (percentage >= 80) {
+
+            return "A";
+
+        } else if (percentage >= 70) {
+
+            return "B";
+
+        } else if (percentage >= 60) {
+
+            return "C";
+
+        } else if (percentage >= 50) {
+
+            return "D";
+
+        } else {
+
+            return "F";
         }
     }
 }

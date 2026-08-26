@@ -13,6 +13,61 @@ public class FeesDAO {
 
     public void addFee(Fees fee) {
 
+        // Student ID validation
+        if (fee.getStudentId() <= 0) {
+
+            System.out.println("Please enter a valid Student ID!");
+            return;
+        }
+
+        // Amount validation
+        if (fee.getAmount() <= 0) {
+
+            System.out.println("Fee amount must be greater than 0!");
+            return;
+        }
+
+        // Payment date validation
+        if (fee.getPaymentDate() == null
+                || fee.getPaymentDate().trim().isEmpty()) {
+
+            System.out.println("Payment date cannot be empty!");
+            return;
+        }
+
+        // Payment status validation
+        if (fee.getPaymentStatus() == null
+                || (!fee.getPaymentStatus().equalsIgnoreCase("Paid")
+                && !fee.getPaymentStatus().equalsIgnoreCase("Pending"))) {
+
+            System.out.println(
+                    "Payment status must be Paid or Pending!"
+            );
+
+            return;
+        }
+
+        // Payment method validation
+        if (fee.getPaymentMethod() == null
+                || fee.getPaymentMethod().trim().isEmpty()) {
+
+            System.out.println("Payment method cannot be empty!");
+            return;
+        }
+
+        String method = fee.getPaymentMethod();
+
+        if (!method.equalsIgnoreCase("Cash")
+                && !method.equalsIgnoreCase("UPI")
+                && !method.equalsIgnoreCase("Card")) {
+
+            System.out.println(
+                    "Payment method must be Cash, UPI, or Card!"
+            );
+
+            return;
+        }
+
         String sql = "INSERT INTO fees "
                    + "(student_id, amount, payment_date, payment_status, payment_method) "
                    + "VALUES (?, ?, ?, ?, ?)";
@@ -38,6 +93,7 @@ public class FeesDAO {
 
         } catch (Exception e) {
 
+            System.out.println("Error while adding fee.");
             e.printStackTrace();
         }
     }
@@ -98,6 +154,7 @@ public class FeesDAO {
 
         } catch (Exception e) {
 
+            System.out.println("Error while fetching fees.");
             e.printStackTrace();
         }
     }
@@ -106,6 +163,12 @@ public class FeesDAO {
     // ================= VIEW STUDENT FEES =================
 
     public void viewStudentFees(int studentId) {
+
+        if (studentId <= 0) {
+
+            System.out.println("Please enter a valid Student ID!");
+            return;
+        }
 
         String sql = "SELECT * FROM fees WHERE student_id = ?";
 
@@ -124,31 +187,66 @@ public class FeesDAO {
 
             boolean found = false;
 
+            double totalAmount = 0;
+            double paidAmount = 0;
+            double pendingAmount = 0;
+
             while (rs.next()) {
 
                 found = true;
+
+                double amount = rs.getDouble("amount");
+
+                String status = rs.getString("payment_status");
 
                 System.out.println("Fee ID: "
                         + rs.getInt("id"));
 
                 System.out.println("Amount: ₹"
-                        + rs.getDouble("amount"));
+                        + amount);
 
                 System.out.println("Payment Date: "
                         + rs.getString("payment_date"));
 
                 System.out.println("Payment Status: "
-                        + rs.getString("payment_status"));
+                        + status);
 
                 System.out.println("Payment Method: "
                         + rs.getString("payment_method"));
 
                 System.out.println("-----------------------------------");
+
+                totalAmount += amount;
+
+                if (status.equalsIgnoreCase("Paid")) {
+
+                    paidAmount += amount;
+
+                } else if (status.equalsIgnoreCase("Pending")) {
+
+                    pendingAmount += amount;
+                }
             }
 
             if (!found) {
 
                 System.out.println("No fee records found.");
+
+            } else {
+
+                System.out.println();
+                System.out.println("========== FEE SUMMARY ==========");
+
+                System.out.println("Total Fee: ₹"
+                        + totalAmount);
+
+                System.out.println("Paid Amount: ₹"
+                        + paidAmount);
+
+                System.out.println("Pending Amount: ₹"
+                        + pendingAmount);
+
+                System.out.println("=================================");
             }
 
             rs.close();
@@ -157,6 +255,7 @@ public class FeesDAO {
 
         } catch (Exception e) {
 
+            System.out.println("Error while fetching student fees.");
             e.printStackTrace();
         }
     }
@@ -165,6 +264,23 @@ public class FeesDAO {
     // ================= UPDATE FEE STATUS =================
 
     public void updateFeeStatus(int feeId, String status) {
+
+        if (feeId <= 0) {
+
+            System.out.println("Please enter a valid Fee ID!");
+            return;
+        }
+
+        if (status == null
+                || (!status.equalsIgnoreCase("Paid")
+                && !status.equalsIgnoreCase("Pending"))) {
+
+            System.out.println(
+                    "Payment status must be Paid or Pending!"
+            );
+
+            return;
+        }
 
         String sql = "UPDATE fees SET payment_status = ? WHERE id = ?";
 
@@ -181,7 +297,9 @@ public class FeesDAO {
 
             if (rows > 0) {
 
-                System.out.println("Fee status updated successfully!");
+                System.out.println(
+                        "Fee status updated successfully!"
+                );
 
             } else {
 
@@ -193,6 +311,7 @@ public class FeesDAO {
 
         } catch (Exception e) {
 
+            System.out.println("Error while updating fee status.");
             e.printStackTrace();
         }
     }

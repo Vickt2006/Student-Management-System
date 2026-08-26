@@ -13,6 +13,26 @@ public class AttendanceDAO {
 
     public void markAttendance(Attendance attendance) {
 
+        if (attendance.getStudentId() <= 0) {
+            System.out.println("Please enter a valid Student ID!");
+            return;
+        }
+
+        if (attendance.getAttendanceDate() == null
+                || attendance.getAttendanceDate().trim().isEmpty()) {
+
+            System.out.println("Attendance date cannot be empty!");
+            return;
+        }
+
+        if (attendance.getStatus() == null
+                || (!attendance.getStatus().equalsIgnoreCase("Present")
+                && !attendance.getStatus().equalsIgnoreCase("Absent"))) {
+
+            System.out.println("Status must be Present or Absent!");
+            return;
+        }
+
         String sql = "INSERT INTO attendance "
                    + "(student_id, attendance_date, status) "
                    + "VALUES (?, ?, ?)";
@@ -36,6 +56,7 @@ public class AttendanceDAO {
 
         } catch (Exception e) {
 
+            System.out.println("Error while marking attendance.");
             e.printStackTrace();
         }
     }
@@ -90,6 +111,7 @@ public class AttendanceDAO {
 
         } catch (Exception e) {
 
+            System.out.println("Error while fetching attendance.");
             e.printStackTrace();
         }
     }
@@ -99,7 +121,14 @@ public class AttendanceDAO {
 
     public void viewStudentAttendance(int studentId) {
 
-        String sql = "SELECT * FROM attendance WHERE student_id = ?";
+        if (studentId <= 0) {
+
+            System.out.println("Please enter a valid Student ID!");
+            return;
+        }
+
+        String sql = "SELECT * FROM attendance WHERE student_id = ? "
+                   + "ORDER BY attendance_date";
 
         try {
 
@@ -116,22 +145,60 @@ public class AttendanceDAO {
 
             boolean found = false;
 
+            int totalDays = 0;
+            int presentDays = 0;
+            int absentDays = 0;
+
             while (rs.next()) {
 
                 found = true;
+
+                String status = rs.getString("status");
 
                 System.out.println("Date: "
                         + rs.getString("attendance_date"));
 
                 System.out.println("Status: "
-                        + rs.getString("status"));
+                        + status);
 
                 System.out.println("----------------------------------------");
+
+                totalDays++;
+
+                if (status.equalsIgnoreCase("Present")) {
+
+                    presentDays++;
+
+                } else if (status.equalsIgnoreCase("Absent")) {
+
+                    absentDays++;
+                }
             }
 
             if (!found) {
 
                 System.out.println("No attendance records found.");
+
+            } else {
+
+                double percentage =
+                        ((double) presentDays / totalDays) * 100;
+
+                System.out.println();
+                System.out.println("========== ATTENDANCE SUMMARY ==========");
+
+                System.out.println("Total Days: " + totalDays);
+
+                System.out.println("Present: " + presentDays);
+
+                System.out.println("Absent: " + absentDays);
+
+                System.out.printf(
+                        "Attendance Percentage: %.2f%%%n",
+                        percentage
+                );
+
+                System.out.println("=========================================");
             }
 
             rs.close();
@@ -140,6 +207,7 @@ public class AttendanceDAO {
 
         } catch (Exception e) {
 
+            System.out.println("Error while fetching student attendance.");
             e.printStackTrace();
         }
     }

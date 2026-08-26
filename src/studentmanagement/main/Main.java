@@ -46,7 +46,18 @@ public class Main {
             System.out.println("Welcome, " + user.getUsername());
             System.out.println("Role: " + user.getRole());
 
-            showDashboard(sc);
+            if (user.getRole().equalsIgnoreCase("ADMIN")) {
+
+                showAdminDashboard(sc);
+
+            } else if (user.getRole().equalsIgnoreCase("STUDENT")) {
+
+                showStudentDashboard(sc, user);
+
+            } else {
+
+                System.out.println("Unknown user role!");
+            }
 
         } else {
 
@@ -59,10 +70,73 @@ public class Main {
 
 
     // =====================================================
+    // SAFE INTEGER INPUT
+    // =====================================================
+
+    public static int getIntInput(
+            Scanner sc,
+            String message) {
+
+        while (true) {
+
+            System.out.print(message);
+
+            if (sc.hasNextInt()) {
+
+                int value = sc.nextInt();
+                sc.nextLine();
+
+                return value;
+
+            } else {
+
+                System.out.println(
+                        "Invalid input! Please enter a number."
+                );
+
+                sc.nextLine();
+            }
+        }
+    }
+
+
+    // =====================================================
+    // SAFE DOUBLE INPUT
+    // =====================================================
+
+    public static double getDoubleInput(
+            Scanner sc,
+            String message) {
+
+        while (true) {
+
+            System.out.print(message);
+
+            if (sc.hasNextDouble()) {
+
+                double value = sc.nextDouble();
+                sc.nextLine();
+
+                return value;
+
+            } else {
+
+                System.out.println(
+                        "Invalid input! Please enter a valid number."
+                );
+
+                sc.nextLine();
+            }
+        }
+    }
+
+
+    // =====================================================
     // ADMIN DASHBOARD
     // =====================================================
 
-    public static void showDashboard(Scanner sc) {
+    public static void showAdminDashboard(
+            Scanner sc) {
 
         int choice;
 
@@ -80,9 +154,10 @@ public class Main {
             System.out.println("5. Reports");
             System.out.println("6. Logout");
 
-            System.out.print("Enter your choice: ");
-
-            choice = sc.nextInt();
+            choice = getIntInput(
+                    sc,
+                    "Enter your choice: "
+            );
 
             switch (choice) {
 
@@ -107,11 +182,15 @@ public class Main {
                     break;
 
                 case 6:
-                    System.out.println("Logged out successfully.");
+                    System.out.println(
+                            "Logged out successfully."
+                    );
                     break;
 
                 default:
-                    System.out.println("Invalid choice!");
+                    System.out.println(
+                            "Invalid choice! Please select 1-6."
+                    );
             }
 
         } while (choice != 6);
@@ -119,12 +198,251 @@ public class Main {
 
 
     // =====================================================
+    // STUDENT DASHBOARD
+    // =====================================================
+
+    public static void showStudentDashboard(
+            Scanner sc,
+            User user) {
+
+        int choice;
+
+        do {
+
+            System.out.println();
+            System.out.println("========================================");
+            System.out.println("            STUDENT DASHBOARD");
+            System.out.println("========================================");
+
+            System.out.println(
+                    "Welcome, " + user.getUsername()
+            );
+
+            System.out.println(
+                    "Student ID: " + user.getStudentId()
+            );
+
+            System.out.println("1. My Profile");
+            System.out.println("2. My Attendance");
+            System.out.println("3. My Marks");
+            System.out.println("4. My Fees");
+            System.out.println("5. Logout");
+
+            choice = getIntInput(
+                    sc,
+                    "Enter your choice: "
+            );
+
+            switch (choice) {
+
+                case 1:
+                    myProfile(user);
+                    break;
+
+                case 2:
+                    myAttendance(user);
+                    break;
+
+                case 3:
+                    myMarks(user);
+                    break;
+
+                case 4:
+                    myFees(user);
+                    break;
+
+                case 5:
+                    System.out.println(
+                            "Logged out successfully."
+                    );
+                    break;
+
+                default:
+                    System.out.println(
+                            "Invalid choice! Please select 1-5."
+                    );
+            }
+
+        } while (choice != 5);
+    }
+
+
+    // =====================================================
+    // MY PROFILE
+    // =====================================================
+
+    public static void myProfile(User user) {
+
+        System.out.println();
+        System.out.println("========== MY PROFILE ==========");
+
+        System.out.println(
+                "User ID: " + user.getId()
+        );
+
+        System.out.println(
+                "Username: " + user.getUsername()
+        );
+
+        System.out.println(
+                "Role: " + user.getRole()
+        );
+
+        System.out.println(
+                "Student ID: " + user.getStudentId()
+        );
+
+        StudentDAO studentDAO =
+                new StudentDAO();
+
+        Student student =
+                studentDAO.getStudentById(
+                        user.getStudentId()
+                );
+
+        if (student != null) {
+
+            System.out.println();
+            System.out.println(
+                    "---------- STUDENT DETAILS ----------"
+            );
+
+            System.out.println(
+                    "Name: " + student.getName()
+            );
+
+            System.out.println(
+                    "Age: " + student.getAge()
+            );
+
+            System.out.println(
+                    "Course: " + student.getCourse()
+            );
+
+            System.out.println(
+                    "Email: " + student.getEmail()
+            );
+
+            System.out.println(
+                    "Phone: " + student.getPhone()
+            );
+
+        } else {
+
+            System.out.println();
+            System.out.println(
+                    "Student profile not found!"
+            );
+        }
+
+        System.out.println(
+                "================================"
+        );
+    }
+
+
+    // =====================================================
+    // MY ATTENDANCE
+    // =====================================================
+
+    public static void myAttendance(User user) {
+
+        System.out.println();
+        System.out.println(
+                "========== MY ATTENDANCE =========="
+        );
+
+        int studentId = user.getStudentId();
+
+        if (studentId <= 0) {
+
+            System.out.println(
+                    "No student profile linked to this account!"
+            );
+
+            return;
+        }
+
+        AttendanceDAO attendanceDAO =
+                new AttendanceDAO();
+
+        attendanceDAO.viewStudentAttendance(
+                studentId
+        );
+    }
+
+
+    // =====================================================
+    // MY MARKS
+    // =====================================================
+
+    public static void myMarks(User user) {
+
+        System.out.println();
+        System.out.println(
+                "========== MY MARKS =========="
+        );
+
+        int studentId = user.getStudentId();
+
+        if (studentId <= 0) {
+
+            System.out.println(
+                    "No student profile linked to this account!"
+            );
+
+            return;
+        }
+
+        MarksDAO marksDAO =
+                new MarksDAO();
+
+        marksDAO.viewStudentMarks(
+                studentId
+        );
+    }
+
+
+    // =====================================================
+    // MY FEES
+    // =====================================================
+
+    public static void myFees(User user) {
+
+        System.out.println();
+        System.out.println(
+                "========== MY FEES =========="
+        );
+
+        int studentId = user.getStudentId();
+
+        if (studentId <= 0) {
+
+            System.out.println(
+                    "No student profile linked to this account!"
+            );
+
+            return;
+        }
+
+        FeesDAO feesDAO =
+                new FeesDAO();
+
+        feesDAO.viewStudentFees(
+                studentId
+        );
+    }
+
+
+    // =====================================================
     // STUDENT MANAGEMENT
     // =====================================================
 
-    public static void studentManagement(Scanner sc) {
+    public static void studentManagement(
+            Scanner sc) {
 
-        StudentDAO studentDAO = new StudentDAO();
+        StudentDAO studentDAO =
+                new StudentDAO();
 
         int choice;
 
@@ -142,10 +460,10 @@ public class Main {
             System.out.println("5. Delete Student");
             System.out.println("6. Back to Dashboard");
 
-            System.out.print("Enter your choice: ");
-
-            choice = sc.nextInt();
-            sc.nextLine();
+            choice = getIntInput(
+                    sc,
+                    "Enter your choice: "
+            );
 
             switch (choice) {
 
@@ -159,9 +477,11 @@ public class Main {
 
                 case 3:
 
-                    System.out.print("Enter Student ID to search: ");
-
-                    int searchId = sc.nextInt();
+                    int searchId =
+                            getIntInput(
+                                    sc,
+                                    "Enter Student ID to search: "
+                            );
 
                     studentDAO.searchStudent(searchId);
 
@@ -173,20 +493,26 @@ public class Main {
 
                 case 5:
 
-                    System.out.print("Enter Student ID to delete: ");
-
-                    int deleteId = sc.nextInt();
+                    int deleteId =
+                            getIntInput(
+                                    sc,
+                                    "Enter Student ID to delete: "
+                            );
 
                     studentDAO.deleteStudent(deleteId);
 
                     break;
 
                 case 6:
-                    System.out.println("Returning to Dashboard...");
+                    System.out.println(
+                            "Returning to Dashboard..."
+                    );
                     break;
 
                 default:
-                    System.out.println("Invalid choice!");
+                    System.out.println(
+                            "Invalid choice! Please select 1-6."
+                    );
             }
 
         } while (choice != 6);
@@ -197,18 +523,23 @@ public class Main {
     // ADD STUDENT
     // =====================================================
 
-    public static void addStudent(Scanner sc, StudentDAO studentDAO) {
+    public static void addStudent(
+            Scanner sc,
+            StudentDAO studentDAO) {
 
         System.out.println();
-        System.out.println("========== ADD STUDENT ==========");
+        System.out.println(
+                "========== ADD STUDENT =========="
+        );
 
         System.out.print("Enter Name: ");
         String name = sc.nextLine();
 
-        System.out.print("Enter Age: ");
-        int age = sc.nextInt();
-
-        sc.nextLine();
+        int age =
+                getIntInput(
+                        sc,
+                        "Enter Age: "
+                );
 
         System.out.print("Enter Course: ");
         String course = sc.nextLine();
@@ -219,7 +550,8 @@ public class Main {
         System.out.print("Enter Phone: ");
         String phone = sc.nextLine();
 
-        Student student = new Student();
+        Student student =
+                new Student();
 
         student.setName(name);
         student.setAge(age);
@@ -235,24 +567,29 @@ public class Main {
     // UPDATE STUDENT
     // =====================================================
 
-    public static void updateStudent(Scanner sc, StudentDAO studentDAO) {
+    public static void updateStudent(
+            Scanner sc,
+            StudentDAO studentDAO) {
 
         System.out.println();
-        System.out.println("========== UPDATE STUDENT ==========");
+        System.out.println(
+                "========== UPDATE STUDENT =========="
+        );
 
-        System.out.print("Enter Student ID: ");
-
-        int id = sc.nextInt();
-
-        sc.nextLine();
+        int id =
+                getIntInput(
+                        sc,
+                        "Enter Student ID: "
+                );
 
         System.out.print("Enter New Name: ");
         String name = sc.nextLine();
 
-        System.out.print("Enter New Age: ");
-        int age = sc.nextInt();
-
-        sc.nextLine();
+        int age =
+                getIntInput(
+                        sc,
+                        "Enter New Age: "
+                );
 
         System.out.print("Enter New Course: ");
         String course = sc.nextLine();
@@ -263,7 +600,8 @@ public class Main {
         System.out.print("Enter New Phone: ");
         String phone = sc.nextLine();
 
-        Student student = new Student();
+        Student student =
+                new Student();
 
         student.setId(id);
         student.setName(name);
@@ -280,9 +618,11 @@ public class Main {
     // ATTENDANCE MANAGEMENT
     // =====================================================
 
-    public static void attendanceManagement(Scanner sc) {
+    public static void attendanceManagement(
+            Scanner sc) {
 
-        AttendanceDAO attendanceDAO = new AttendanceDAO();
+        AttendanceDAO attendanceDAO =
+                new AttendanceDAO();
 
         int choice;
 
@@ -298,10 +638,10 @@ public class Main {
             System.out.println("3. View Student Attendance");
             System.out.println("4. Back to Dashboard");
 
-            System.out.print("Enter your choice: ");
-
-            choice = sc.nextInt();
-            sc.nextLine();
+            choice = getIntInput(
+                    sc,
+                    "Enter your choice: "
+            );
 
             switch (choice) {
 
@@ -315,20 +655,28 @@ public class Main {
 
                 case 3:
 
-                    System.out.print("Enter Student ID: ");
+                    int studentId =
+                            getIntInput(
+                                    sc,
+                                    "Enter Student ID: "
+                            );
 
-                    int studentId = sc.nextInt();
-
-                    attendanceDAO.viewStudentAttendance(studentId);
+                    attendanceDAO.viewStudentAttendance(
+                            studentId
+                    );
 
                     break;
 
                 case 4:
-                    System.out.println("Returning to Dashboard...");
+                    System.out.println(
+                            "Returning to Dashboard..."
+                    );
                     break;
 
                 default:
-                    System.out.println("Invalid choice!");
+                    System.out.println(
+                            "Invalid choice! Please select 1-4."
+                    );
             }
 
         } while (choice != 4);
@@ -344,29 +692,38 @@ public class Main {
             AttendanceDAO attendanceDAO) {
 
         System.out.println();
-        System.out.println("========== MARK ATTENDANCE ==========");
+        System.out.println(
+                "========== MARK ATTENDANCE =========="
+        );
 
-        System.out.print("Enter Student ID: ");
+        int studentId =
+                getIntInput(
+                        sc,
+                        "Enter Student ID: "
+                );
 
-        int studentId = sc.nextInt();
-
-        sc.nextLine();
-
-        System.out.print("Enter Date (YYYY-MM-DD): ");
+        System.out.print(
+                "Enter Date (YYYY-MM-DD): "
+        );
 
         String date = sc.nextLine();
 
-        System.out.print("Enter Status (Present/Absent): ");
+        System.out.print(
+                "Enter Status (Present/Absent): "
+        );
 
         String status = sc.nextLine();
 
-        Attendance attendance = new Attendance();
+        Attendance attendance =
+                new Attendance();
 
         attendance.setStudentId(studentId);
         attendance.setAttendanceDate(date);
         attendance.setStatus(status);
 
-        attendanceDAO.markAttendance(attendance);
+        attendanceDAO.markAttendance(
+                attendance
+        );
     }
 
 
@@ -374,9 +731,11 @@ public class Main {
     // MARKS MANAGEMENT
     // =====================================================
 
-    public static void marksManagement(Scanner sc) {
+    public static void marksManagement(
+            Scanner sc) {
 
-        MarksDAO marksDAO = new MarksDAO();
+        MarksDAO marksDAO =
+                new MarksDAO();
 
         int choice;
 
@@ -392,10 +751,10 @@ public class Main {
             System.out.println("3. View Student Marks");
             System.out.println("4. Back to Dashboard");
 
-            System.out.print("Enter your choice: ");
-
-            choice = sc.nextInt();
-            sc.nextLine();
+            choice = getIntInput(
+                    sc,
+                    "Enter your choice: "
+            );
 
             switch (choice) {
 
@@ -409,20 +768,28 @@ public class Main {
 
                 case 3:
 
-                    System.out.print("Enter Student ID: ");
+                    int studentId =
+                            getIntInput(
+                                    sc,
+                                    "Enter Student ID: "
+                            );
 
-                    int studentId = sc.nextInt();
-
-                    marksDAO.viewStudentMarks(studentId);
+                    marksDAO.viewStudentMarks(
+                            studentId
+                    );
 
                     break;
 
                 case 4:
-                    System.out.println("Returning to Dashboard...");
+                    System.out.println(
+                            "Returning to Dashboard..."
+                    );
                     break;
 
                 default:
-                    System.out.println("Invalid choice!");
+                    System.out.println(
+                            "Invalid choice! Please select 1-4."
+                    );
             }
 
         } while (choice != 4);
@@ -433,30 +800,38 @@ public class Main {
     // ADD MARKS
     // =====================================================
 
-    public static void addMarks(Scanner sc, MarksDAO marksDAO) {
+    public static void addMarks(
+            Scanner sc,
+            MarksDAO marksDAO) {
 
         System.out.println();
-        System.out.println("========== ADD MARKS ==========");
+        System.out.println(
+                "========== ADD MARKS =========="
+        );
 
-        System.out.print("Enter Student ID: ");
-
-        int studentId = sc.nextInt();
-
-        sc.nextLine();
+        int studentId =
+                getIntInput(
+                        sc,
+                        "Enter Student ID: "
+                );
 
         System.out.print("Enter Subject: ");
-
         String subject = sc.nextLine();
 
-        System.out.print("Enter Marks: ");
+        int marks =
+                getIntInput(
+                        sc,
+                        "Enter Marks: "
+                );
 
-        int marks = sc.nextInt();
+        int totalMarks =
+                getIntInput(
+                        sc,
+                        "Enter Total Marks: "
+                );
 
-        System.out.print("Enter Total Marks: ");
-
-        int totalMarks = sc.nextInt();
-
-        Marks mark = new Marks();
+        Marks mark =
+                new Marks();
 
         mark.setStudentId(studentId);
         mark.setSubject(subject);
@@ -471,9 +846,11 @@ public class Main {
     // FEES MANAGEMENT
     // =====================================================
 
-    public static void feesManagement(Scanner sc) {
+    public static void feesManagement(
+            Scanner sc) {
 
-        FeesDAO feesDAO = new FeesDAO();
+        FeesDAO feesDAO =
+                new FeesDAO();
 
         int choice;
 
@@ -490,10 +867,10 @@ public class Main {
             System.out.println("4. Update Fee Status");
             System.out.println("5. Back to Dashboard");
 
-            System.out.print("Enter your choice: ");
-
-            choice = sc.nextInt();
-            sc.nextLine();
+            choice = getIntInput(
+                    sc,
+                    "Enter your choice: "
+            );
 
             switch (choice) {
 
@@ -507,11 +884,15 @@ public class Main {
 
                 case 3:
 
-                    System.out.print("Enter Student ID: ");
+                    int studentId =
+                            getIntInput(
+                                    sc,
+                                    "Enter Student ID: "
+                            );
 
-                    int studentId = sc.nextInt();
-
-                    feesDAO.viewStudentFees(studentId);
+                    feesDAO.viewStudentFees(
+                            studentId
+                    );
 
                     break;
 
@@ -520,11 +901,15 @@ public class Main {
                     break;
 
                 case 5:
-                    System.out.println("Returning to Dashboard...");
+                    System.out.println(
+                            "Returning to Dashboard..."
+                    );
                     break;
 
                 default:
-                    System.out.println("Invalid choice!");
+                    System.out.println(
+                            "Invalid choice! Please select 1-5."
+                    );
             }
 
         } while (choice != 5);
@@ -535,36 +920,47 @@ public class Main {
     // ADD FEE
     // =====================================================
 
-    public static void addFee(Scanner sc, FeesDAO feesDAO) {
+    public static void addFee(
+            Scanner sc,
+            FeesDAO feesDAO) {
 
         System.out.println();
-        System.out.println("========== ADD FEE ==========");
+        System.out.println(
+                "========== ADD FEE =========="
+        );
 
-        System.out.print("Enter Student ID: ");
+        int studentId =
+                getIntInput(
+                        sc,
+                        "Enter Student ID: "
+                );
 
-        int studentId = sc.nextInt();
+        double amount =
+                getDoubleInput(
+                        sc,
+                        "Enter Amount: "
+                );
 
-        sc.nextLine();
-
-        System.out.print("Enter Amount: ");
-
-        double amount = sc.nextDouble();
-
-        sc.nextLine();
-
-        System.out.print("Enter Payment Date (YYYY-MM-DD): ");
+        System.out.print(
+                "Enter Payment Date (YYYY-MM-DD): "
+        );
 
         String paymentDate = sc.nextLine();
 
-        System.out.print("Enter Payment Status (Paid/Pending): ");
+        System.out.print(
+                "Enter Payment Status (Paid/Pending): "
+        );
 
         String paymentStatus = sc.nextLine();
 
-        System.out.print("Enter Payment Method (Cash/UPI/Card): ");
+        System.out.print(
+                "Enter Payment Method (Cash/UPI/Card): "
+        );
 
         String paymentMethod = sc.nextLine();
 
-        Fees fee = new Fees();
+        Fees fee =
+                new Fees();
 
         fee.setStudentId(studentId);
         fee.setAmount(amount);
@@ -585,19 +981,26 @@ public class Main {
             FeesDAO feesDAO) {
 
         System.out.println();
-        System.out.println("========== UPDATE FEE STATUS ==========");
+        System.out.println(
+                "========== UPDATE FEE STATUS =========="
+        );
 
-        System.out.print("Enter Fee ID: ");
+        int feeId =
+                getIntInput(
+                        sc,
+                        "Enter Fee ID: "
+                );
 
-        int feeId = sc.nextInt();
-
-        sc.nextLine();
-
-        System.out.print("Enter New Status (Paid/Pending): ");
+        System.out.print(
+                "Enter New Status (Paid/Pending): "
+        );
 
         String status = sc.nextLine();
 
-        feesDAO.updateFeeStatus(feeId, status);
+        feesDAO.updateFeeStatus(
+                feeId,
+                status
+        );
     }
 
 
@@ -605,9 +1008,11 @@ public class Main {
     // REPORTS MANAGEMENT
     // =====================================================
 
-    public static void reportsManagement(Scanner sc) {
+    public static void reportsManagement(
+            Scanner sc) {
 
-        ReportDAO reportDAO = new ReportDAO();
+        ReportDAO reportDAO =
+                new ReportDAO();
 
         int choice;
 
@@ -618,34 +1023,48 @@ public class Main {
             System.out.println("              REPORTS");
             System.out.println("========================================");
 
-            System.out.println("1. Student Full Report");
-            System.out.println("2. Back to Dashboard");
+            System.out.println(
+                    "1. Student Full Report"
+            );
 
-            System.out.print("Enter your choice: ");
+            System.out.println(
+                    "2. Back to Dashboard"
+            );
 
-            choice = sc.nextInt();
+            choice = getIntInput(
+                    sc,
+                    "Enter your choice: "
+            );
 
             switch (choice) {
 
                 case 1:
 
-                    System.out.print("Enter Student ID: ");
+                    int studentId =
+                            getIntInput(
+                                    sc,
+                                    "Enter Student ID: "
+                            );
 
-                    int studentId = sc.nextInt();
-
-                    reportDAO.studentFullReport(studentId);
+                    reportDAO.studentFullReport(
+                            studentId
+                    );
 
                     break;
 
                 case 2:
 
-                    System.out.println("Returning to Dashboard...");
+                    System.out.println(
+                            "Returning to Dashboard..."
+                    );
 
                     break;
 
                 default:
 
-                    System.out.println("Invalid choice!");
+                    System.out.println(
+                            "Invalid choice! Please select 1-2."
+                    );
             }
 
         } while (choice != 2);
